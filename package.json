@@ -1,0 +1,18 @@
+{
+  "name": "n-code-bot",
+  "version": "1.0.0",
+  "description": "A discord bot that provides info on nHentai doujins.",
+  "main": "index.js",
+  "repository": "https://github.com/Nsttt/n-code-bot.git",
+  "author": "Nestor <elnestinatorHD@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^12.4.0",
+    "nana-api": "^1.1.2"
+  }
+}
