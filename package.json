@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "discord.js": "^12.4.0",
+    "keyv": "^4.0.3",
+    "luxon": "^1.25.0",
     "nana-api": "^1.1.2"
   }
 }
