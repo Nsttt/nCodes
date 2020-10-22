@@ -33,6 +33,7 @@ client.on('message', async (message) => {
   if (command === 'serve') {
     const code = args.join('');
     let bookData = {};
+    let bookTagList = [];
     let bookCategory = {};
     let bookTags = [];
     let bookArtist = [];
@@ -46,21 +47,38 @@ client.on('message', async (message) => {
         bookData = g;
       })
       .then(() => {
-        bookData.tags.filter((book) => {
-          if (book.type === 'category') {
-            return (book = bookCategory);
-          }
-          if (book.type === 'artist') {
-            return (book = bookArtist);
-          }
-          if (book.type === 'language') {
-            return (book = bookLanguage);
-          }
-          if (book.type === 'group') {
-            return (book = bookGroup);
-          }
-          if (book.type === 'parodies') {
-            return (book = bookParody);
+        bookTagList = bookData.tags.forEach((tag) => {
+          switch (tag) {
+            case 'Tags':
+              if (tag.type === 'tag') {
+                bookTags.sort().push(tag.name);
+              }
+              break;
+            case 'Artist':
+              if (tag.type === 'artist') {
+                bookArtist.push(tag.name);
+              }
+              break;
+            case 'Language':
+              if (tag.type === 'language') {
+                bookLanguage.push(tag.name);
+              }
+              break;
+            case 'Parody':
+              if (tag.type === 'parodies') {
+                bookParody.push(tag.name);
+              }
+              break;
+            case 'Group':
+              if (tag.type === 'group') {
+                bookGroup.push(tag.name);
+              }
+              break;
+            case 'Category':
+              if (tag.type === 'category') {
+                bookCategory.push(tag.name);
+              }
+              break;
           }
         });
       })
@@ -69,9 +87,9 @@ client.on('message', async (message) => {
         const embed = new Discord.MessageEmbed()
           .setColor('#ED2553')
           .setAuthor(
-            bookArtist[0].name,
+            null,
             'https://cdn0.iconfinder.com/data/icons/set-ui-app-android/32/8-512.png',
-            `https://nhentai.net/${bookArtist[0].url}`
+            `https://nhentai.net/`
           )
           .setThumbnail(
             `https://t.nhentai.net/galleries/${bookData.media_id}/cover.jpg`
@@ -84,7 +102,7 @@ client.on('message', async (message) => {
           })
           .addFields({
             name: 'Tags:',
-            value: bookTags[0],
+            value: bookTagList.Tags.join(', '),
           })
           .setTimestamp(DateTime.fromSeconds(bookData.upload_date))
           .setFooter(
