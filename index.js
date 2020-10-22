@@ -32,9 +32,13 @@ client.on('message', async (message) => {
 
   if (command === 'serve') {
     const code = args.join('');
-    let bookData = null;
-    let bookTags = null;
-    let bookArtist = null;
+    let bookData = {};
+    let bookCategory = {};
+    let bookTags = [];
+    let bookArtist = [];
+    let bookLanguage = [];
+    let bookParody = [];
+    let bookGroup = [];
 
     nana
       .g(code)
@@ -42,21 +46,26 @@ client.on('message', async (message) => {
         bookData = g;
       })
       .then(() => {
-        bookArtist = bookData.tags.filter((a) => {
-          if (a.type === 'artist') {
-            return a;
+        bookData.tags.filter((book) => {
+          if (book.type === 'category') {
+            return (book = bookCategory);
           }
-        });
-        bookTags = bookData.tags.filter((t) => {
-          if (t.type === 'tag') {
-            for (let i = 0; i < t.length; i++) {
-              bookTags += t[i].name;
-            }
+          if (book.type === 'artist') {
+            return (book = bookArtist);
+          }
+          if (book.type === 'language') {
+            return (book = bookLanguage);
+          }
+          if (book.type === 'group') {
+            return (book = bookGroup);
+          }
+          if (book.type === 'parodies') {
+            return (book = bookParody);
           }
         });
       })
       .then(() => {
-        console.log(bookTags);
+        console.log(bookData);
         const embed = new Discord.MessageEmbed()
           .setColor('#ED2553')
           .setAuthor(
