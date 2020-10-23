@@ -33,8 +33,8 @@ client.on('message', async (message) => {
   if (command === 'serve') {
     const code = args.join('');
     let bookData = {};
-    let bookTagList = [];
-    let bookCategory = {};
+
+    let bookCategory = [];
     let bookTags = [];
     let bookArtist = [];
     let bookLanguage = [];
@@ -47,63 +47,64 @@ client.on('message', async (message) => {
         bookData = g;
       })
       .then(() => {
-        bookTagList = bookData.tags.forEach((tag) => {
-          switch (tag) {
-            case 'Tags':
-              if (tag.type === 'tag') {
+        bookData.tags.forEach((tag) => {
+          switch (tag.type) {
+            case 'tag':
                 bookTags.sort().push(tag.name);
-              }
               break;
-            case 'Artist':
-              if (tag.type === 'artist') {
+            case 'artist':
                 bookArtist.push(tag.name);
-              }
               break;
-            case 'Language':
-              if (tag.type === 'language') {
+            case 'language':
                 bookLanguage.push(tag.name);
-              }
               break;
-            case 'Parody':
-              if (tag.type === 'parodies') {
+            case 'parodies':
                 bookParody.push(tag.name);
-              }
               break;
-            case 'Group':
-              if (tag.type === 'group') {
+            case 'group':
                 bookGroup.push(tag.name);
-              }
               break;
-            case 'Category':
-              if (tag.type === 'category') {
+            case 'category':
                 bookCategory.push(tag.name);
-              }
               break;
+              default:
+                null;
           }
         });
       })
       .then(() => {
-        console.log(bookData);
+        console.log(bookTags);
         const embed = new Discord.MessageEmbed()
           .setColor('#ED2553')
-          .setAuthor(
-            null,
-            'https://cdn0.iconfinder.com/data/icons/set-ui-app-android/32/8-512.png',
-            `https://nhentai.net/`
-          )
           .setThumbnail(
             `https://t.nhentai.net/galleries/${bookData.media_id}/cover.jpg`
           )
           .setTitle(bookData.title.pretty)
           .setURL(`https://nhentai.net/g/${bookData.id}`)
-          .addFields({
+          .addFields(
+            {
+              name: 'Artist:',
+              value: bookArtist.join(', '),
+              inline: true
+            },
+            {
+              name: 'Language:',
+              value: bookLanguage.join(', '),
+              inline: true
+            },
+            {
+              name: 'Parody:',
+              value: bookParody.join(', '),
+            },
+            {
             name: 'Pages:',
             value: bookData.num_pages,
-          })
-          .addFields({
+          },
+          {
             name: 'Tags:',
-            value: bookTagList.Tags.join(', '),
-          })
+            value: bookTags.join(', '),
+          }
+          )
           .setTimestamp(DateTime.fromSeconds(bookData.upload_date))
           .setFooter(
             ` Favorites: ${bookData.num_favorites}`,
