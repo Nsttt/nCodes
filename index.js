@@ -34,10 +34,8 @@ client.on('message', async (message) => {
     const code = args.join('');
     let bookData = {};
 
-    let bookCategory = [];
     let bookTags = [];
     let bookArtist = [];
-    let bookLanguage = [];
     let bookParody = [];
     let bookGroup = [];
 
@@ -50,30 +48,24 @@ client.on('message', async (message) => {
         bookData.tags.forEach((tag) => {
           switch (tag.type) {
             case 'tag':
-                bookTags.sort().push(tag.name);
+              bookTags.push(tag.name);
               break;
             case 'artist':
-                bookArtist.push(tag.name);
+              bookArtist.push(tag.name);
               break;
-            case 'language':
-                bookLanguage.push(tag.name);
-              break;
-            case 'parodies':
-                bookParody.push(tag.name);
+            case 'parody':
+              bookParody.push(tag.name);
               break;
             case 'group':
-                bookGroup.push(tag.name);
+              bookGroup.push(tag.name);
               break;
-            case 'category':
-                bookCategory.push(tag.name);
-              break;
-              default:
-                null;
+            default:
+              null;
           }
         });
       })
       .then(() => {
-        console.log(bookTags);
+        console.log(bookData);
         const embed = new Discord.MessageEmbed()
           .setColor('#ED2553')
           .setThumbnail(
@@ -85,25 +77,27 @@ client.on('message', async (message) => {
             {
               name: 'Artist:',
               value: bookArtist.join(', '),
-              inline: true
+              inline: true,
             },
             {
-              name: 'Language:',
-              value: bookLanguage.join(', '),
-              inline: true
+              name: 'Group:',
+              value: bookGroup.join(', '),
+              inline: true,
             },
             {
               name: 'Parody:',
               value: bookParody.join(', '),
+            }
+          )
+          .addFields(
+            {
+              name: 'Tags:',
+              value: bookTags.sort().join(', '),
             },
             {
-            name: 'Pages:',
-            value: bookData.num_pages,
-          },
-          {
-            name: 'Tags:',
-            value: bookTags.join(', '),
-          }
+              name: 'Pages:',
+              value: bookData.num_pages,
+            }
           )
           .setTimestamp(DateTime.fromSeconds(bookData.upload_date))
           .setFooter(
