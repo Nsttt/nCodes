@@ -76,23 +76,23 @@ client.on('message', async (message) => {
           .addFields(
             {
               name: 'Artist:',
-              value: bookArtist.join(', '),
+              value: bookArtist > 0 ? bookArtist.join(', ') : null,
               inline: true,
             },
             {
               name: 'Group:',
-              value: bookGroup.join(', '),
+              value: bookGroup > 0 ? bookGroup.join(', ') : null,
               inline: true,
             },
             {
               name: 'Parody:',
-              value: bookParody.join(', '),
+              value: bookParody > 0 ? bookParody.join(', ') : null
             }
           )
           .addFields(
             {
               name: 'Tags:',
-              value: bookTags.sort().join(', '),
+              value: bookTags > 0 ? bookTags.sort().join(', ') : null
             },
             {
               name: 'Pages:',
