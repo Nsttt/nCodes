@@ -30,7 +30,8 @@ client.on('message', async (message) => {
   const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
 
-  if (command === 'serve') {
+  if (command === 'search') {
+    message.delete()
     const code = args.join('');
     let bookData = {};
 
@@ -65,7 +66,6 @@ client.on('message', async (message) => {
         });
       })
       .then(() => {
-        console.log(bookData);
         const embed = new Discord.MessageEmbed()
           .setColor('#ED2553')
           .setThumbnail(
@@ -76,23 +76,23 @@ client.on('message', async (message) => {
           .addFields(
             {
               name: 'Artist:',
-              value: bookArtist > 0 ? bookArtist.join(', ') : null,
+              value: bookArtist.length ? bookArtist.join(', ') : 'Unknown',
               inline: true,
             },
             {
               name: 'Group:',
-              value: bookGroup > 0 ? bookGroup.join(', ') : null,
+              value: bookGroup.length ? bookGroup.join(', ') : 'Unknown',
               inline: true,
             },
             {
               name: 'Parody:',
-              value: bookParody > 0 ? bookParody.join(', ') : null
+              value: bookParody.length ? bookParody.join(', ') : 'Unknown',
             }
           )
           .addFields(
             {
               name: 'Tags:',
-              value: bookTags > 0 ? bookTags.sort().join(', ') : null
+              value: bookTags.length ? bookTags.sort().join(', ') : 'None',
             },
             {
               name: 'Pages:',
