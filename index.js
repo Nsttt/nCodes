@@ -1,13 +1,50 @@
 const Discord = require('discord.js');
 const NanaAPI = require('nana-api');
 const { DateTime } = require('luxon');
-
-const config = require('./config.json');
+const fs = require('fs')
+const Enmap = require('enmap')
 
 const client = new Discord.Client();
+const config = require('./config.json');
+client.config = config
 const nana = new NanaAPI();
 
 // Client setup
+
+// This loop reads the /events/ folder and attaches each event file to the appropriate event.
+fs.readdir("./events/", (err, files) => {
+  if (err) return console.error(err);
+  files.forEach(file => {
+    // If the file is not a JS file, ignore it (thanks, Apple)
+    if (!file.endsWith(".js")) return;
+    // Load the event file itself
+    const event = require(`./events/${file}`);
+    // Get just the event name from the file name
+    let eventName = file.split(".")[0];
+    // super-secret recipe to call events with all their proper arguments *after* the `client` var.
+    // without going into too many details, this means each event will be called with the client argument,
+    // followed by its "normal" arguments, like message, member, etc etc.
+    // This line is awesome by the way. Just sayin'.
+    client.on(eventName, event.bind(null, client));
+    delete require.cache[require.resolve(`./events/${file}`)];
+  });
+});
+
+client.commands = new Enmap();
+
+fs.readdir("./commands/", (err, files) => {
+  if (err) return console.error(err);
+  files.forEach(file => {
+    if (!file.endsWith(".js")) return;
+    // Load the command file itself
+    let props = require(`./commands/${file}`);
+    // Get just the command name from the file name
+    let commandName = file.split(".")[0];
+    console.log(`Attempting to load command ${commandName}`);
+    // Here we simply store the whole thing in the command Enmap. We're not running it right now.
+    client.commands.set(commandName, props);
+  });
+});
 
 // Guild join or leave
 client.on('guildCreate', (guild) => {
@@ -27,167 +64,6 @@ client.on('ready', () => {
     },
     status: 'dnd',
   });
-});
-
-// Commands
-client.on('message', async (message) => {
-  if (!message.content.startsWith(config.prefix) || message.author.bot) return;
-
-  const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
-  const command = args.shift().toLowerCase();
-
-  if (command === 'search' || command === 's') {
-    const code = args.join('');
-    let bookData = {};
-
-    let bookTags = [];
-    let bookArtist = [];
-    let bookParody = [];
-    let bookGroup = [];
-
-    nana
-      .g(code)
-      .then((g) => {
-        bookData = g;
-      })
-      .then(() => {
-        bookData.tags.forEach((tag) => {
-          switch (tag.type) {
-            case 'tag':
-              bookTags.push(tag.name);
-              break;
-            case 'artist':
-              bookArtist.push(tag.name);
-              break;
-            case 'parody':
-              bookParody.push(tag.name);
-              break;
-            case 'group':
-              bookGroup.push(tag.name);
-              break;
-            default:
-              null;
-          }
-        });
-      })
-      .then(() => {
-        const embed = new Discord.MessageEmbed()
-          .setColor('#ED2553')
-          .setThumbnail(
-            `https://t.nhentai.net/galleries/${bookData.media_id}/cover.jpg`
-          )
-          .setTitle(bookData.title.pretty)
-          .setURL(`https://nhentai.net/g/${bookData.id}`)
-          .addFields(
-            {
-              name: 'Artist:',
-              value: bookArtist.length ? bookArtist.join(', ') : 'Unknown',
-              inline: true,
-            },
-            {
-              name: 'Group:',
-              value: bookGroup.length ? bookGroup.join(', ') : 'Unknown',
-              inline: true,
-            },
-            {
-              name: 'Parody:',
-              value: bookParody.length ? bookParody.join(', ') : 'Unknown',
-            }
-          )
-          .addFields(
-            {
-              name: 'Tags:',
-              value: bookTags.length ? bookTags.sort().join(', ') : 'None',
-            },
-            {
-              name: 'Pages:',
-              value: bookData.num_pages,
-            }
-          )
-          .setTimestamp(DateTime.fromSeconds(bookData.upload_date))
-          .setFooter(
-            ` Favorites: ${bookData.num_favorites}`,
-            'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678087-heart-512.png'
-          );
-        message.channel.send(embed);
-      });
-  }
-
-  if (command === 'r' || command === 'random') {
-    let rBookData = {};
-
-    let rBookTags = [];
-    let rBookArtist = [];
-    let rBookParody = [];
-    let rBookGroup = [];
-
-    nana
-      .random()
-      .then((g) => {
-        rBookData = g;
-      })
-      .then(() => {
-        rBookData.tags.forEach((tag) => {
-          switch (tag.type) {
-            case 'tag':
-              rBookTags.push(tag.name);
-              break;
-            case 'artist':
-              rBookArtist.push(tag.name);
-              break;
-            case 'parody':
-              rBookParody.push(tag.name);
-              break;
-            case 'group':
-              rBookGroup.push(tag.name);
-              break;
-            default:
-              null;
-          }
-        });
-      })
-      .then(() => {
-        const embed = new Discord.MessageEmbed()
-          .setColor('#ED2553')
-          .setThumbnail(
-            `https://t.nhentai.net/galleries/${rBookData.media_id}/cover.jpg`
-          )
-          .setTitle(rBookData.title.pretty)
-          .setURL(`https://nhentai.net/g/${rBookData.id}`)
-          .addFields(
-            {
-              name: 'Artist:',
-              value: rBookArtist.length ? rBookArtist.join(', ') : 'Unknown',
-              inline: true,
-            },
-            {
-              name: 'Group:',
-              value: rBookGroup.length ? rBookGroup.join(', ') : 'Unknown',
-              inline: true,
-            },
-            {
-              name: 'Parody:',
-              value: rBookParody.length ? rBookParody.join(', ') : 'Unknown',
-            }
-          )
-          .addFields(
-            {
-              name: 'Tags:',
-              value: rBookTags.length ? rBookTags.sort().join(', ') : 'None',
-            },
-            {
-              name: 'Pages:',
-              value: rBookData.num_pages,
-            }
-          )
-          .setTimestamp(DateTime.fromSeconds(rBookData.upload_date))
-          .setFooter(
-            ` Favorites: ${rBookData.num_favorites}`,
-            'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678087-heart-512.png'
-          );
-        message.channel.send(embed);
-      });
-  }
 });
 
 client.login(config.token);
