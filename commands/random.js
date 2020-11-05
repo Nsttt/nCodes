@@ -1,30 +1,35 @@
-exports.run = (client, message, args) => {
-  let rBookData = {};
+const Discord = require('discord.js');
+const NanaAPI = require('nana-api');
+const { DateTime } = require('luxon');
+const nana = new NanaAPI();
 
-  let rBookTags = [];
-  let rBookArtist = [];
-  let rBookParody = [];
-  let rBookGroup = [];
+exports.run = (client, message) => {
+  let BookData = {};
+
+  let BookTags = [];
+  let BookArtist = [];
+  let BookParody = [];
+  let BookGroup = [];
 
   nana
     .random()
     .then((g) => {
-      rBookData = g;
+      BookData = g;
     })
     .then(() => {
-      rBookData.tags.forEach((tag) => {
+      BookData.tags.forEach((tag) => {
         switch (tag.type) {
           case 'tag':
-            rBookTags.push(tag.name);
+            BookTags.push(tag.name);
             break;
           case 'artist':
-            rBookArtist.push(tag.name);
+            BookArtist.push(tag.name);
             break;
           case 'parody':
-            rBookParody.push(tag.name);
+            BookParody.push(tag.name);
             break;
           case 'group':
-            rBookGroup.push(tag.name);
+            BookGroup.push(tag.name);
             break;
           default:
             null;
@@ -35,39 +40,40 @@ exports.run = (client, message, args) => {
       const embed = new Discord.MessageEmbed()
         .setColor('#ED2553')
         .setThumbnail(
-          `https://t.nhentai.net/galleries/${rBookData.media_id}/cover.jpg`
+          //TODO: Make available changes between jpg & png
+          `https://t.nhentai.net/galleries/${BookData.media_id}/cover.jpg`
         )
-        .setTitle(rBookData.title.pretty)
-        .setURL(`https://nhentai.net/g/${rBookData.id}`)
+        .setTitle(BookData.title.pretty)
+        .setURL(`https://nhentai.net/g/${BookData.id}`)
         .addFields(
           {
             name: 'Artist:',
-            value: rBookArtist.length ? rBookArtist.join(', ') : 'Unknown',
+            value: BookArtist.length ? BookArtist.join(', ') : 'Unknown',
             inline: true,
           },
           {
             name: 'Group:',
-            value: rBookGroup.length ? rBookGroup.join(', ') : 'Unknown',
+            value: BookGroup.length ? BookGroup.join(', ') : 'Unknown',
             inline: true,
           },
           {
             name: 'Parody:',
-            value: rBookParody.length ? rBookParody.join(', ') : 'Unknown',
+            value: BookParody.length ? BookParody.join(', ') : 'Unknown',
           }
         )
         .addFields(
           {
             name: 'Tags:',
-            value: rBookTags.length ? rBookTags.sort().join(', ') : 'None',
+            value: BookTags.length ? BookTags.sort().join(', ') : 'None',
           },
           {
             name: 'Pages:',
-            value: rBookData.num_pages,
+            value: BookData.num_pages,
           }
         )
-        .setTimestamp(DateTime.fromSeconds(rBookData.upload_date))
+        .setTimestamp(DateTime.fromSeconds(BookData.upload_date))
         .setFooter(
-          ` Favorites: ${rBookData.num_favorites}`,
+          ` Favorites: ${BookData.num_favorites}`,
           'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678087-heart-512.png'
         );
       message.channel.send(embed);

@@ -1,3 +1,8 @@
+const Discord = require('discord.js');
+const NanaAPI = require('nana-api');
+const { DateTime } = require('luxon');
+const nana = new NanaAPI();
+
 exports.run = (client, message, args) => {
   const code = args.join('');
   let bookData = {};
@@ -36,6 +41,7 @@ exports.run = (client, message, args) => {
       const embed = new Discord.MessageEmbed()
         .setColor('#ED2553')
         .setThumbnail(
+          //TODO: Make available changes between jpg & png
           `https://t.nhentai.net/galleries/${bookData.media_id}/cover.jpg`
         )
         .setTitle(bookData.title.pretty)
