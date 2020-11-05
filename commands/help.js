@@ -28,7 +28,6 @@ exports.run = (client, message) => {
           inline: true,
         }
       )
-
       .setFooter('For more info look at the docs in the github page.')
   );
 };
