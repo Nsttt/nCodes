@@ -1,4 +1,4 @@
-<a href="http://www.nstlopez.com/githunter/"><img src="https://i.imgur.com/aYWkEVW.png" title="nst.sh" alt="nst.sh" height="120" /></a>
+<img src="https://i.imgur.com/wzsFn7I.png" title="nCodes" alt="nCodes" height="120" />
 
 # nCodes bot
 
