@@ -88,4 +88,4 @@ typings/
 .dynamodb/
 
 # Config
-./config.json
+config.json
