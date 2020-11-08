@@ -5,76 +5,75 @@ const nana = new NanaAPI();
 
 exports.run = (client, message, args) => {
   const code = args.join('');
-  let bookData = {};
-
-  let bookTags = [];
-  let bookArtist = [];
-  let bookParody = [];
-  let bookGroup = [];
+  let bookData = {
+    tags: [],
+    artist: [],
+    parody: [],
+    bookGroup: [],
+  };
 
   nana
     .g(code)
-    .then((g) => {
-      bookData = g;
-    })
-    .then(() => {
-      bookData.tags.forEach((tag) => {
-        switch (tag.type) {
+    .then((globalRes) => {
+      globalRes.tags.map(({type}) => {
+        switch (type) {
           case 'tag':
-            bookTags.push(tag.name);
+            bookData.tags.push(tag.name);
             break;
           case 'artist':
-            bookArtist.push(tag.name);
+            bookData.artist.push(tag.name);
             break;
           case 'parody':
-            bookParody.push(tag.name);
+            bookData.parody.push(tag.name);
             break;
           case 'group':
-            bookGroup.push(tag.name);
+            bookData.group.push(tag.name);
             break;
           default:
             null;
         }
       });
+    return Promise.resolve(globalRes)
     })
-    .then(() => {
+    .then((globalRes) => {
       const embed = new Discord.MessageEmbed()
+      // Color #ED2553 it's defined in multiple files. You can make a 'constants' route where you can define it only once
         .setColor('#ED2553')
         .setThumbnail(
           //TODO: Make available changes between jpg & png
-          `https://t.nhentai.net/galleries/${bookData.media_id}/cover.jpg`
+          `https://t.nhentai.net/galleries/${globalRes.media_id}/cover.jpg`
         )
-        .setTitle(bookData.title.pretty)
-        .setURL(`https://nhentai.net/g/${bookData.id}`)
+        .setTitle(globalRes.title.pretty)
+        .setURL(`https://nhentai.net/g/${globalRes.id}`)
         .addFields(
           {
             name: 'Artist:',
-            value: bookArtist.length ? bookArtist.join(', ') : 'Unknown',
+            value: bookData.artist.length ? bookArtist.join(', ') : 'Unknown',
             inline: true,
           },
           {
             name: 'Group:',
-            value: bookGroup.length ? bookGroup.join(', ') : 'Unknown',
+            value: bookData.group.length ? bookGroup.join(', ') : 'Unknown',
             inline: true,
           },
           {
             name: 'Parody:',
-            value: bookParody.length ? bookParody.join(', ') : 'Unknown',
+            value: bookData.parody.length ? bookParody.join(', ') : 'Unknown',
           }
         )
         .addFields(
           {
             name: 'Tags:',
-            value: bookTags.length ? bookTags.sort().join(', ') : 'None',
+            value: bookData.tags.length ? bookTags.sort().join(', ') : 'None',
           },
           {
             name: 'Pages:',
-            value: bookData.num_pages,
+            value: globalRes.num_pages,
           }
         )
-        .setTimestamp(DateTime.fromSeconds(bookData.upload_date))
+        .setTimestamp(DateTime.fromSeconds(globalRes.upload_date))
         .setFooter(
-          ` Favorites: ${bookData.num_favorites}`,
+          ` Favorites: ${globalRes.num_favorites}`,
           'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678087-heart-512.png'
         );
       message.channel.send(embed);
