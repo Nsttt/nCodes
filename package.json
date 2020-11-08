@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "discord.js": "^12.4.0",
+    "dotenv": "^8.2.0",
     "enmap": "^5.8.0",
     "luxon": "^1.25.0",
     "nana-api": "^1.1.2"
