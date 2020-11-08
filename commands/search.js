@@ -9,35 +9,34 @@ exports.run = (client, message, args) => {
     tags: [],
     artist: [],
     parody: [],
-    bookGroup: [],
+    group: [],
   };
 
   nana
     .g(code)
     .then((globalRes) => {
-      globalRes.tags.map(({type}) => {
-        switch (type) {
+      globalRes.tags.map((type) => {
+        switch (type.type) {
           case 'tag':
-            bookData.tags.push(tag.name);
+            bookData.tags.push(type.name);
             break;
           case 'artist':
-            bookData.artist.push(tag.name);
+            bookData.artist.push(type.name);
             break;
           case 'parody':
-            bookData.parody.push(tag.name);
+            bookData.parody.push(type.name);
             break;
           case 'group':
-            bookData.group.push(tag.name);
+            bookData.group.push(type.name);
             break;
           default:
             null;
         }
       });
-    return Promise.resolve(globalRes)
+      return Promise.resolve(globalRes);
     })
     .then((globalRes) => {
       const embed = new Discord.MessageEmbed()
-      // Color #ED2553 it's defined in multiple files. You can make a 'constants' route where you can define it only once
         .setColor('#ED2553')
         .setThumbnail(
           //TODO: Make available changes between jpg & png
@@ -48,23 +47,31 @@ exports.run = (client, message, args) => {
         .addFields(
           {
             name: 'Artist:',
-            value: bookData.artist.length ? bookArtist.join(', ') : 'Unknown',
+            value: bookData.artist.length
+              ? bookData.artist.join(', ')
+              : 'Unknown',
             inline: true,
           },
           {
             name: 'Group:',
-            value: bookData.group.length ? bookGroup.join(', ') : 'Unknown',
+            value: bookData.group.length
+              ? bookData.group.join(', ')
+              : 'Unknown',
             inline: true,
           },
           {
             name: 'Parody:',
-            value: bookData.parody.length ? bookParody.join(', ') : 'Unknown',
+            value: bookData.parody.length
+              ? bookData.parody.join(', ')
+              : 'Unknown',
           }
         )
         .addFields(
           {
             name: 'Tags:',
-            value: bookData.tags.length ? bookTags.sort().join(', ') : 'None',
+            value: bookData.tags.length
+              ? bookData.tags.sort().join(', ')
+              : 'None',
           },
           {
             name: 'Pages:',

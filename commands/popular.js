@@ -3,88 +3,96 @@ const NanaAPI = require('nana-api');
 const { DateTime } = require('luxon');
 const nana = new NanaAPI();
 
-exports.run = (client, message, args) => {
-  let bookData = {};
+exports.run = (client, message) => {
+  let bookData = {
+    tags: [],
+    artist: [],
+    parody: [],
+    group: [],
+  };
 
-  let bookTags = [];
-  let bookArtist = [];
-  let bookParody = [];
-  let bookGroup = [];
-
-  nana.popular().then((l) => {
-    l.results.forEach((book) => {
+  nana.popular().then((list) => {
+    list.results.forEach((book) => {
       nana
         .g(book.id)
-        .then((g) => {
-          bookData = g;
-        })
-        .then(() => {
-          bookData.tags.forEach((tag) => {
-            switch (tag.type) {
+        .then((globalRes) => {
+          globalRes.tags.map((type) => {
+            switch (type.type) {
               case 'tag':
-                bookTags.push(tag.name);
+                bookData.tags.push(type.name);
                 break;
               case 'artist':
-                bookArtist.push(tag.name);
+                bookData.artist.push(type.name);
                 break;
               case 'parody':
-                bookParody.push(tag.name);
+                bookData.parody.push(type.name);
                 break;
               case 'group':
-                bookGroup.push(tag.name);
+                bookData.group.push(type.name);
                 break;
               default:
                 null;
             }
           });
+          return Promise.resolve(globalRes);
         })
-        .then(() => {
+        .then((globalRes) => {
           const embed = new Discord.MessageEmbed()
             .setColor('#ED2553')
             .setThumbnail(
               //TODO: Make available changes between jpg & png
-              `https://t.nhentai.net/galleries/${bookData.media_id}/cover.jpg`
+              `https://t.nhentai.net/galleries/${globalRes.media_id}/cover.jpg`
             )
-            .setTitle(bookData.title.pretty)
-            .setURL(`https://nhentai.net/g/${bookData.id}`)
+            .setTitle(globalRes.title.pretty)
+            .setURL(`https://nhentai.net/g/${globalRes.id}`)
             .addFields(
               {
                 name: 'Artist:',
-                value: bookArtist.length ? bookArtist.join(', ') : 'Unknown',
+                value: bookData.artist.length
+                  ? bookData.artist.join(', ')
+                  : 'Unknown',
                 inline: true,
               },
               {
                 name: 'Group:',
-                value: bookGroup.length ? bookGroup.join(', ') : 'Unknown',
+                value: bookData.group.length
+                  ? bookData.group.join(', ')
+                  : 'Unknown',
                 inline: true,
               },
               {
                 name: 'Parody:',
-                value: bookParody.length ? bookParody.join(', ') : 'Unknown',
+                value: bookData.parody.length
+                  ? bookData.parody.join(', ')
+                  : 'Unknown',
               }
             )
             .addFields(
               {
                 name: 'Tags:',
-                value: bookTags.length ? bookTags.sort().join(', ') : 'None',
+                value: bookData.tags.length
+                  ? bookData.tags.sort().join(', ')
+                  : 'None',
               },
               {
                 name: 'Pages:',
-                value: bookData.num_pages,
+                value: globalRes.num_pages,
               }
             )
-            .setTimestamp(DateTime.fromSeconds(bookData.upload_date))
+            .setTimestamp(DateTime.fromSeconds(globalRes.upload_date))
             .setFooter(
-              ` Favorites: ${bookData.num_favorites}`,
+              ` Favorites: ${globalRes.num_favorites}`,
               'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678087-heart-512.png'
             );
           message.channel.send(embed);
         })
         .then(() => {
-          bookTags = [];
-          bookArtist = [];
-          bookParody = [];
-          bookGroup = [];
+          bookData = {
+            tags: [],
+            artist: [],
+            parody: [],
+            group: [],
+          };
         });
     });
   });
