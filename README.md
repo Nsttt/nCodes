@@ -34,13 +34,11 @@ First, create a new app in the <a href="https://discord.com/developers/applicati
 After you have made your app, you will have to head to the **Bot** tab, and there you will have your **token**.
 Keep it safe, anyone with that can mess with your bot.
 
-In order to run your own instance of the bot, you will have to create a _config.json_ file in the root folder. It must have the following structure.
+In order to run your own instance of the bot, you will have to create a _.env_ file in the root folder. It must have the following structure.
 
 ```json
-{
-  "prefix": "!n",
-  "token": "YourTokenHere"
-}
+PREFIX="!n"
+TOKEN="YourTokenHere"
 ```
 
 You can change the prefix if you feel like it.
