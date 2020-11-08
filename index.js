@@ -1,10 +1,8 @@
 const Discord = require('discord.js');
 const fs = require('fs')
 const Enmap = require('enmap')
-
+require('dotenv').config();
 const client = new Discord.Client();
-const config = require('./config.json');
-client.config = config
 
 // Client setup
 fs.readdir("./events/", (err, files) => {
@@ -44,4 +42,4 @@ client.on('ready', () => {
   });
 });
 
-client.login(config.token);
+client.login(process.env.TOKEN);
